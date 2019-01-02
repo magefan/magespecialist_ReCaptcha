@@ -54,6 +54,16 @@ class ReCaptcha extends Template
     private $layoutSettings;
 
     /**
+     * @var string
+     */
+    private $reCaptchaId;
+
+    /**
+     * @var string
+     */
+    private $reCaptchaContainerId;
+
+    /**
      * ReCaptcha constructor.
      * @param Template\Context $context
      * @param DecoderInterface $decoder
@@ -90,7 +100,39 @@ class ReCaptcha extends Template
     public function getJsLayout()
     {
         $layout = $this->decoder->decode(parent::getJsLayout());
-        $layout['components']['msp-recaptcha']['settings'] = $this->layoutSettings->getCaptchaSettings();
+
+        $reCaptchaId = $this->getReCaptchaId();
+        $layout['components'][$reCaptchaId] = $layout['components']['msp-recaptcha'];
+        $layout['components'][$reCaptchaId]['reCaptchaId'] = $reCaptchaId;
+        unset($layout['components']['msp-recaptcha']);
+
+        $layout['components'][$this->getReCaptchaId()]['settings'] = $this->layoutSettings->getCaptchaSettings();
         return $this->encoder->encode($layout);
+    }
+
+    /**
+     * Get reCaptcha container unic ID
+     * @return string
+     */
+    public function getReCaptchaContainerId()
+    {
+        if (null === $this->reCaptchaContainerId) {
+            $this->reCaptchaContainerId = 'msp-recaptcha-container-' . md5($this->getNameInLayout());
+        }
+
+        return $this->reCaptchaContainerId;
+    }
+
+    /**
+     * Get reCaptcha unic ID
+     * @return string
+     */
+    public function getReCaptchaId()
+    {
+        if (null === $this->reCaptchaId) {
+            $this->reCaptchaId = 'msp-recaptcha-' . md5($this->getNameInLayout());
+        }
+
+        return $this->reCaptchaId;
     }
 }
